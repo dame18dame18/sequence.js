@@ -1,5 +1,98 @@
 # @0xsequence/auth
 
+## 0.40.5
+
+### Patch Changes
+
+- api: update bindings
+- Updated dependencies
+  - @0xsequence/abi@0.40.5
+  - @0xsequence/api@0.40.5
+  - @0xsequence/config@0.40.5
+  - @0xsequence/indexer@0.40.5
+  - @0xsequence/metadata@0.40.5
+  - @0xsequence/network@0.40.5
+  - @0xsequence/utils@0.40.5
+  - @0xsequence/wallet@0.40.5
+
+## 0.40.4
+
+### Patch Changes
+
+- add unreal transport
+- Updated dependencies
+  - @0xsequence/abi@0.40.4
+  - @0xsequence/api@0.40.4
+  - @0xsequence/config@0.40.4
+  - @0xsequence/indexer@0.40.4
+  - @0xsequence/metadata@0.40.4
+  - @0xsequence/network@0.40.4
+  - @0xsequence/utils@0.40.4
+  - @0xsequence/wallet@0.40.4
+
+## 0.40.3
+
+### Patch Changes
+
+- provider: fix MessageToSign message type
+- Updated dependencies
+  - @0xsequence/abi@0.40.3
+  - @0xsequence/api@0.40.3
+  - @0xsequence/config@0.40.3
+  - @0xsequence/indexer@0.40.3
+  - @0xsequence/metadata@0.40.3
+  - @0xsequence/network@0.40.3
+  - @0xsequence/utils@0.40.3
+  - @0xsequence/wallet@0.40.3
+
+## 0.40.2
+
+### Patch Changes
+
+- Wallet provider, loadSession method
+- Updated dependencies
+  - @0xsequence/abi@0.40.2
+  - @0xsequence/api@0.40.2
+  - @0xsequence/config@0.40.2
+  - @0xsequence/indexer@0.40.2
+  - @0xsequence/metadata@0.40.2
+  - @0xsequence/network@0.40.2
+  - @0xsequence/utils@0.40.2
+  - @0xsequence/wallet@0.40.2
+
+## 0.40.1
+
+### Patch Changes
+
+- export sequence.initWallet and sequence.getWallet
+- Updated dependencies
+  - @0xsequence/abi@0.40.1
+  - @0xsequence/api@0.40.1
+  - @0xsequence/config@0.40.1
+  - @0xsequence/indexer@0.40.1
+  - @0xsequence/metadata@0.40.1
+  - @0xsequence/network@0.40.1
+  - @0xsequence/utils@0.40.1
+  - @0xsequence/wallet@0.40.1
+
+## 0.40.0
+
+### Minor Changes
+
+- add sequence.initWallet(network, config) and sequence.getWallet() helper methods
+
+### Patch Changes
+
+- Updated dependencies
+  - @0xsequence/abi@0.40.0
+  - @0xsequence/api@0.40.0
+  - @0xsequence/config@0.40.0
+  - @0xsequence/indexer@0.40.0
+  - @0xsequence/metadata@0.40.0
+  - @0xsequence/network@0.40.0
+  - @0xsequence/utils@0.40.0
+  - @0xsequence/wallet@0.40.0
+
 ## 0.39.6
 
 ### Patch Changes

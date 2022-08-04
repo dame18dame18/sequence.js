@@ -21,7 +21,13 @@ import { ConfigTracker, SessionsApiConfigTracker, WalletConfig, WalletState } fr
 import { logger } from '@0xsequence/utils'
 import { JsonRpcProvider } from '@ethersproject/providers'
 import { Web3Provider, Web3Signer } from './provider'
-import { MuxMessageProvider, WindowMessageProvider, ProxyMessageProvider, ProxyMessageChannelPort } from './transports'
+import {
+  MuxMessageProvider,
+  WindowMessageProvider,
+  ProxyMessageProvider,
+  ProxyMessageChannelPort,
+  UnrealMessageProvider
+} from './transports'
 import { WalletSession, ProviderEventTypes, ConnectOptions, OpenWalletIntent, ConnectDetails } from './types'
 import { ethers } from 'ethers'
 import { ExtensionMessageProvider } from './transports/extension-transport/extension-message-provider'
@@ -32,10 +38,8 @@ import { Runtime } from 'webextension-polyfill-ts'
 
 export interface WalletProvider {
   connect(options?: ConnectOptions): Promise<ConnectDetails>
-  // authorize(options?: ConnectOptions): Promise<ConnectDetails>
   disconnect(): void
 
-  isOpened(): boolean
   isConnected(): boolean
   getSession(): WalletSession | undefined
 
@@ -43,6 +47,7 @@ export interface WalletProvider {
   getNetworks(chainId?: ChainIdLike): Promise<NetworkConfig[]>
   getChainId(): Promise<number>
 
+  isOpened(): boolean
   openWallet(path?: string, intent?: OpenWalletIntent, networkId?: string | number): Promise<boolean>
   closeWallet(): void
 
@@ -87,20 +92,21 @@ export class Wallet implements WalletProvider {
     windowMessageProvider?: WindowMessageProvider
     proxyMessageProvider?: ProxyMessageProvider
     extensionMessageProvider?: ExtensionMessageProvider
+    unrealMessageProvider?: UnrealMessageProvider
   }
 
   private networks: NetworkConfig[]
   private providers: { [chainId: number]: Web3Provider }
 
-  constructor(defaultNetworkId?: string | number, config?: Partial<ProviderConfig>) {
+  constructor(network?: string | number, config?: Partial<ProviderConfig>) {
     // config is a Partial, so that we may intersect it with the DefaultProviderConfig,
     // which allows easy overriding and control of the config.
     this.config = { ...DefaultProviderConfig }
     if (config) {
       this.config = { ...this.config, ...config }
     }
-    if (defaultNetworkId) {
-      this.config.defaultNetworkId = defaultNetworkId
+    if (network) {
+      this.config.defaultNetworkId = network
     } else if (!this.config.defaultNetworkId) {
       this.config.defaultNetworkId = 'mainnet'
     }
@@ -148,6 +154,10 @@ export class Wallet implements WalletProvider {
       // the entire extension because messageProvider.provider will be undefined. So this is a hack to fix it.
       //
       // this.transport.messageProvider.add(this.transport.extensionMessageProvider)
+    }
+    if (this.config.transports?.unrealTransport?.enabled) {
+      this.transport.unrealMessageProvider = new UnrealMessageProvider(this.config.walletAppURL)
+      this.transport.messageProvider.add(this.transport.unrealMessageProvider)
     }
     this.transport.messageProvider.register()
 
@@ -238,13 +248,23 @@ export class Wallet implements WalletProvider {
     this.transport.messageProvider.on('walletContext', (walletContext: WalletContext) => {
       this.useSession({ walletContext: walletContext }, true)
     })
+  }
 
-    // Load existing session from localStorage
-    this.loadSession().then(session => {
+  loadSession = async (): Promise<WalletSession | undefined> => {
+    const data = await LocalStorage.getInstance().getItem('@sequence.session')
+    if (!data || data === '') {
+      return undefined
+    }
+    try {
+      const session = JSON.parse(data) as WalletSession
       if (session) {
         this.useSession(session, false)
       }
-    })
+      return session
+    } catch (err) {
+      logger.warn('loadSession failed, unable to parse session payload from storage.')
+      return undefined
+    }
   }
 
   connect = async (options?: ConnectOptions): Promise<ConnectDetails> => {
@@ -333,6 +353,9 @@ export class Wallet implements WalletProvider {
     }
     this.clearSession()
   }
+
+  // TODO: add switchNetwork(network: string | number) which will call wallet_switchEthereumChain
+  // and on successful response, will update the provider info here, etc.
 
   getProviderConfig(): ProviderConfig {
     return this.config
@@ -525,24 +548,10 @@ export class Wallet implements WalletProvider {
     this.transport.messageProvider!.once(event, fn)
   }
 
-  private loadSession = async (): Promise<WalletSession | undefined> => {
-    const data = await LocalStorage.getInstance().getItem('@sequence.session')
-    if (!data || data === '') {
-      return undefined
-    }
-    try {
-      const session = JSON.parse(data) as WalletSession
-      return session
-    } catch (err) {
-      logger.warn('loadSession failed, unable to parse session payload from localStorage.')
-      return undefined
-    }
-  }
-
-  private saveSession = (session: WalletSession) => {
+  private saveSession = async (session: WalletSession) => {
     logger.debug('wallet provider: saving session')
     const data = JSON.stringify(session)
-    LocalStorage.getInstance().setItem('@sequence.session', data)
+    await LocalStorage.getInstance().setItem('@sequence.session', data)
   }
 
   private useSession = async (session: WalletSession, autoSave: boolean = true) => {
@@ -674,6 +683,11 @@ export interface ProviderConfig {
       enabled: boolean
       runtime: Runtime.Static
     }
+
+    // Unreal Engine transport (optional)
+    unrealTransport?: {
+      enabled: boolean
+    }
   }
 
   // Sequence Wallet Modules Context override. By default (and recommended), the
@@ -692,4 +706,22 @@ export const DefaultProviderConfig: ProviderConfig = {
     windowTransport: { enabled: true },
     proxyTransport: { enabled: false }
   }
+}
+
+let walletInstance: Wallet | undefined
+
+export const initWallet = async (network?: string | number, config?: Partial<ProviderConfig>) => {
+  if (walletInstance && walletInstance.isOpened()) {
+    walletInstance.closeWallet()
+  }
+  walletInstance = new Wallet(network, config)
+  await walletInstance.loadSession()
+  return walletInstance
+}
+
+export const getWallet = () => {
+  if (!walletInstance) {
+    throw new Error('Wallet has not been initialized, call sequence.initWallet(network, config) first.')
+  }
+  return walletInstance
 }

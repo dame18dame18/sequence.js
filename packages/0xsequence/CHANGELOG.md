@@ -1,5 +1,134 @@
 # 0xsequence
 
+## 0.40.5
+
+### Patch Changes
+
+- api: update bindings
+- Updated dependencies
+  - @0xsequence/abi@0.40.5
+  - @0xsequence/api@0.40.5
+  - @0xsequence/auth@0.40.5
+  - @0xsequence/config@0.40.5
+  - @0xsequence/guard@0.40.5
+  - @0xsequence/indexer@0.40.5
+  - @0xsequence/metadata@0.40.5
+  - @0xsequence/multicall@0.40.5
+  - @0xsequence/network@0.40.5
+  - @0xsequence/provider@0.40.5
+  - @0xsequence/relayer@0.40.5
+  - @0xsequence/transactions@0.40.5
+  - @0xsequence/utils@0.40.5
+  - @0xsequence/wallet@0.40.5
+
+## 0.40.4
+
+### Patch Changes
+
+- add unreal transport
+- Updated dependencies
+  - @0xsequence/abi@0.40.4
+  - @0xsequence/api@0.40.4
+  - @0xsequence/auth@0.40.4
+  - @0xsequence/config@0.40.4
+  - @0xsequence/guard@0.40.4
+  - @0xsequence/indexer@0.40.4
+  - @0xsequence/metadata@0.40.4
+  - @0xsequence/multicall@0.40.4
+  - @0xsequence/network@0.40.4
+  - @0xsequence/provider@0.40.4
+  - @0xsequence/relayer@0.40.4
+  - @0xsequence/transactions@0.40.4
+  - @0xsequence/utils@0.40.4
+  - @0xsequence/wallet@0.40.4
+
+## 0.40.3
+
+### Patch Changes
+
+- provider: fix MessageToSign message type
+- Updated dependencies
+  - @0xsequence/abi@0.40.3
+  - @0xsequence/api@0.40.3
+  - @0xsequence/auth@0.40.3
+  - @0xsequence/config@0.40.3
+  - @0xsequence/guard@0.40.3
+  - @0xsequence/indexer@0.40.3
+  - @0xsequence/metadata@0.40.3
+  - @0xsequence/multicall@0.40.3
+  - @0xsequence/network@0.40.3
+  - @0xsequence/provider@0.40.3
+  - @0xsequence/relayer@0.40.3
+  - @0xsequence/transactions@0.40.3
+  - @0xsequence/utils@0.40.3
+  - @0xsequence/wallet@0.40.3
+
+## 0.40.2
+
+### Patch Changes
+
+- Wallet provider, loadSession method
+- Updated dependencies
+  - @0xsequence/abi@0.40.2
+  - @0xsequence/api@0.40.2
+  - @0xsequence/auth@0.40.2
+  - @0xsequence/config@0.40.2
+  - @0xsequence/guard@0.40.2
+  - @0xsequence/indexer@0.40.2
+  - @0xsequence/metadata@0.40.2
+  - @0xsequence/multicall@0.40.2
+  - @0xsequence/network@0.40.2
+  - @0xsequence/provider@0.40.2
+  - @0xsequence/relayer@0.40.2
+  - @0xsequence/transactions@0.40.2
+  - @0xsequence/utils@0.40.2
+  - @0xsequence/wallet@0.40.2
+
+## 0.40.1
+
+### Patch Changes
+
+- export sequence.initWallet and sequence.getWallet
+- Updated dependencies
+  - @0xsequence/abi@0.40.1
+  - @0xsequence/api@0.40.1
+  - @0xsequence/auth@0.40.1
+  - @0xsequence/config@0.40.1
+  - @0xsequence/guard@0.40.1
+  - @0xsequence/indexer@0.40.1
+  - @0xsequence/metadata@0.40.1
+  - @0xsequence/multicall@0.40.1
+  - @0xsequence/network@0.40.1
+  - @0xsequence/provider@0.40.1
+  - @0xsequence/relayer@0.40.1
+  - @0xsequence/transactions@0.40.1
+  - @0xsequence/utils@0.40.1
+  - @0xsequence/wallet@0.40.1
+
+## 0.40.0
+
+### Minor Changes
+
+- add sequence.initWallet(network, config) and sequence.getWallet() helper methods
+
+### Patch Changes
+
+- Updated dependencies
+  - @0xsequence/abi@0.40.0
+  - @0xsequence/api@0.40.0
+  - @0xsequence/auth@0.40.0
+  - @0xsequence/config@0.40.0
+  - @0xsequence/guard@0.40.0
+  - @0xsequence/indexer@0.40.0
+  - @0xsequence/metadata@0.40.0
+  - @0xsequence/multicall@0.40.0
+  - @0xsequence/network@0.40.0
+  - @0xsequence/provider@0.40.0
+  - @0xsequence/relayer@0.40.0
+  - @0xsequence/transactions@0.40.0
+  - @0xsequence/utils@0.40.0
+  - @0xsequence/wallet@0.40.0
+
 ## 0.39.6
 
 ### Patch Changes

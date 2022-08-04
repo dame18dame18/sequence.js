@@ -1,5 +1,41 @@
 # @0xsequence/guard
 
+## 0.40.5
+
+### Patch Changes
+
+- api: update bindings
+
+## 0.40.4
+
+### Patch Changes
+
+- add unreal transport
+
+## 0.40.3
+
+### Patch Changes
+
+- provider: fix MessageToSign message type
+
+## 0.40.2
+
+### Patch Changes
+
+- Wallet provider, loadSession method
+
+## 0.40.1
+
+### Patch Changes
+
+- export sequence.initWallet and sequence.getWallet
+
+## 0.40.0
+
+### Minor Changes
+
+- add sequence.initWallet(network, config) and sequence.getWallet() helper methods
+
 ## 0.39.6
 
 ### Patch Changes
