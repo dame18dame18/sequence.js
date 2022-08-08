@@ -53,7 +53,7 @@ export const prefixEIP191Message = (message: BytesLike): Uint8Array => {
   return ethers.utils.concat([eip191prefix, ethers.utils.toUtf8Bytes(String(messageBytes.length)), messageBytes])
 }
 
-export const isValidMessageSignature = async (message: BytesLike, args: Omit<ValidSignatureArgs, 'digest'>): Promise<boolean | undefined> => {
+export const isValidMessageSignature = async (message: BytesLike, args: Omit<ValidSignatureArgs, 'digest'>): Promise<boolean> => {
   const prefixed = prefixEIP191Message(message)
   const digest = encodeMessageDigest(prefixed)
   return isValidSignature({ ...args, digest })
@@ -62,7 +62,7 @@ export const isValidMessageSignature = async (message: BytesLike, args: Omit<Val
 export const isValidTypedDataSignature = (
   typedData: TypedData,
   args: Omit<ValidSignatureArgs, 'digest'>
-): Promise<boolean | undefined> => {
+): Promise<boolean> => {
   const encoded = encodeTypedDataDigest(typedData)
   return isValidSignature({ ...args, digest: encoded })
 }
@@ -164,7 +164,7 @@ export async function isValidContractWalletSignature(
   digest: Uint8Array,
   signature: string,
   provider: Provider
-) {
+): Promise<boolean | undefined> {
   try {
     const code = await provider.getCode(address)
     if (code.length === 0 || code === '0x') {

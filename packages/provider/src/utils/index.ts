@@ -50,7 +50,7 @@ export class WalletUtils {
     signature: string,
     chainId: number,
     walletContext?: WalletContext
-  ): Promise<boolean | undefined> {
+  ): Promise<boolean> {
     const provider = this.wallet.getProvider(chainId)
     if (!provider) throw new Error(`unable to get provider for chainId ${chainId}`)
 
@@ -75,7 +75,7 @@ export class WalletUtils {
     signature: string,
     chainId: number,
     walletContext?: WalletContext,
-  ): Promise<boolean | undefined> {
+  ): Promise<boolean> {
     const provider = this.wallet.getProvider(chainId)
     if (!provider) throw new Error(`unable to get provider for chainId ${chainId}`)
 
@@ -101,7 +101,7 @@ export class WalletUtils {
     signature: string,
     chainId: number,
     walletContext?: WalletContext
-  ): Promise<boolean | undefined> {
+  ): Promise<boolean> {
     return this.isValidSignature(address, encodeTypedDataDigest(typedData), signature, chainId, walletContext)
   }
 
