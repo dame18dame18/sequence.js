@@ -384,8 +384,8 @@ export class Account extends Signer {
 
     // If we failed to fetch the config then we need to add
     // the image hash to the failed list
-    const failed = []
-    const configs = []
+    const failed: string[] = []
+    const configs: WalletConfig[] = []
     for (let i = 0; i < imageHashes.length; i++) {
       const config = results[i]
       if (config) {
