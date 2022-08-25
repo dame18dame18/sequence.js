@@ -25,9 +25,12 @@ export enum ChainId {
   OPTIMISM = 10,
   OPTIMISM_TESTNET = 69,
 
-  // Arbitrum
+  // Arbitrum One
   ARBITRUM = 42161,
   ARBITRUM_TESTNET = 421611,
+
+  // Arbitrum Nova
+  ARBITRUM_NOVA = 42170,
 
   // Avalanche
   AVALANCHE = 43114,
@@ -182,7 +185,7 @@ export const networks: Record<ChainId, NetworkConfig> = {
   [ChainId.ARBITRUM]: {
     chainId: ChainId.ARBITRUM,
     name: 'arbitrum',
-    title: 'Arbitrum',
+    title: 'Arbitrum One',
     blockExplorer: {
       name: 'Arbiscan',
       rootUrl: 'https://arbiscan.io/'
@@ -196,6 +199,15 @@ export const networks: Record<ChainId, NetworkConfig> = {
     blockExplorer: {
       name: 'Arbiscan (Testnet)',
       rootUrl: 'https://testnet.arbiscan.io/'
+    }
+  },
+  [ChainId.ARBITRUM_NOVA]: {
+    chainId: ChainId.ARBITRUM_NOVA,
+    name: 'arbitrum-nova',
+    title: 'Arbitrum Nova',
+    blockExplorer: {
+      name: 'Nova Explorer',
+      rootUrl: 'https://nova-explorer.arbitrum.io/'
     }
   },
   [ChainId.AVALANCHE]: {
