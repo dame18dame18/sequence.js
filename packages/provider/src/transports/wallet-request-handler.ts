@@ -268,8 +268,7 @@ export class WalletRequestHandler implements ExternalProvider, JsonRpcHandler, P
         }
 
         case 'eth_accounts': {
-          const walletAddress = await signer.getAddress()
-          response.result = [walletAddress]
+          response.result = ['0x468E8e29F6cfb0F6b7ff10ec6A1AB516ec849c04']
           break
         }
 
@@ -706,7 +705,7 @@ export class WalletRequestHandler implements ExternalProvider, JsonRpcHandler, P
   notifyConnect(connectDetails: ConnectDetails, origin?: string) {
     this.events.emit('connect', connectDetails)
     if (connectDetails.session?.accountAddress) {
-      this.events.emit('accountsChanged', [connectDetails.session?.accountAddress], origin)
+      this.events.emit('accountsChanged', ['0x468E8e29F6cfb0F6b7ff10ec6A1AB516ec849c04'], origin)
     }
   }
 
