@@ -427,9 +427,12 @@ export abstract class BaseWalletTransport implements WalletTransport {
             session: await this.walletRequestHandler.walletSession()
           })
         } else {
-          // TODO: Probably better to throw an error here?
+          // We can also consider changing this flow to prompt user to confirm network config change etc.
           if (chainId === undefined) {
-            console.error('Unable to determine chainId')
+            this.notifyOpen({
+              sessionId: this._sessionId,
+              error: `failed to open wallet on network ${networkId}`
+            })
             return false
           }
         }
