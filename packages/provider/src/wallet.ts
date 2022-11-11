@@ -293,7 +293,8 @@ export class Wallet implements WalletProvider {
 
     await this.openWallet(undefined, { type: 'connect', options })
     const connectDetails = await this.transport.messageProvider!.waitUntilConnected().catch(_ => {
-      return { connected: false } as ConnectDetails
+      // it disconnects here on logout
+      return { connected: false, disconnect: '.......' } as ConnectDetails
     })
 
     if (connectDetails.connected) {

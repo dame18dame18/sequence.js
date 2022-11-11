@@ -386,14 +386,6 @@ export abstract class BaseWalletTransport implements WalletTransport {
         }
       } catch (err) {
         console.error(err)
-      }
-
-      // Failed to set default network on open -- quit + close
-      if (!chainId || chainId <= 0) {
-        this.notifyOpen({
-          sessionId: this._sessionId,
-          error: `failed to open wallet on network ${networkId}`
-        })
         return false
       }
 
@@ -407,8 +399,10 @@ export abstract class BaseWalletTransport implements WalletTransport {
           sessionId: this._sessionId
         })
 
+        const requiresNetworkConfigChange = chainId === undefined
+
         try {
-          const connectDetails = await this.walletRequestHandler.promptConnect(intent.options)
+          const connectDetails = await this.walletRequestHandler.promptConnect(intent.options, requiresNetworkConfigChange)
           if (connectDetails.connected) {
             this.walletRequestHandler.notifyConnect(connectDetails)
           }
@@ -424,11 +418,21 @@ export abstract class BaseWalletTransport implements WalletTransport {
         // user is already connected, notify session details.
         // TODO: in future, keep list if 'connected' dapps / sessions in the session
         // controller, and only sync with allowed apps
-        this.notifyOpen({
-          sessionId: this._sessionId,
-          chainId: `${chainId}`,
-          session: await this.walletRequestHandler.walletSession()
-        })
+
+        // If we have the chainId it means its good to use, since we validate it in walletRequestHandler.setDefaultNetwork
+        if (chainId) {
+          this.notifyOpen({
+            sessionId: this._sessionId,
+            chainId: `${chainId}`,
+            session: await this.walletRequestHandler.walletSession()
+          })
+        } else {
+          // TODO: Probably better to throw an error here?
+          if (chainId === undefined) {
+            console.error('Unable to determine chainId')
+            return false
+          }
+        }
       }
     }
 

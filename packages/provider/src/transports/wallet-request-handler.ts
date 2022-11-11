@@ -192,7 +192,7 @@ export class WalletRequestHandler implements ExternalProvider, JsonRpcHandler, P
     return connectDetails
   }
 
-  promptConnect = async (options?: ConnectOptions): Promise<ConnectDetails> => {
+  promptConnect = async (options?: ConnectOptions, requiresNetworkConfigChange?: boolean): Promise<ConnectDetails> => {
     if (!options && !this._connectOptions) {
       // this is an unexpected state and should not happen
       throw new Error('prompter connect options are empty')
@@ -203,9 +203,11 @@ export class WalletRequestHandler implements ExternalProvider, JsonRpcHandler, P
       return this.connect(options)
     }
 
-    const promptConnectDetails = await this.prompter.promptConnect(options || this._connectOptions).catch(_ => {
-      return { connected: false } as ConnectDetails
-    })
+    const promptConnectDetails = await this.prompter
+      .promptConnect(options || this._connectOptions, requiresNetworkConfigChange)
+      .catch(_ => {
+        return { connected: false } as ConnectDetails
+      })
 
     const connectDetails: ConnectDetails = promptConnectDetails
     if (connectDetails.connected && !connectDetails.session) {
@@ -671,15 +673,37 @@ export class WalletRequestHandler implements ExternalProvider, JsonRpcHandler, P
     this._defaultNetworkId = chainId
     this._chainId = undefined
 
-    if (this.signer && (<any>this.signer).setNetworks) {
-      const defaultChainId: number = (<any>this.signer).setNetworks(this.mainnetNetworks, this.testnetNetworks, chainId)
-      if (defaultChainId && notifyNetworks) {
-        await this.notifyNetworks()
+    const chainIdNum = parseInt(chainId as any)
+
+    const isTestnetEnabled = await this.auxDataProvider?.get('isTestnetEnabled')
+
+    const isChainIdInTestnets =
+      this.testnetNetworks.find(network => network.chainId === chainIdNum || network.name === chainId) !== undefined
+    const isChainIdInMainnets =
+      this.mainnetNetworks.find(network => network.chainId === chainIdNum || network.name === chainId) !== undefined
+
+    const chainIsSupported = isChainIdInTestnets || isChainIdInMainnets
+    const networkMatchesConfig = (isTestnetEnabled && isChainIdInTestnets) || (!isTestnetEnabled && !isChainIdInTestnets)
+
+    if (chainIsSupported && networkMatchesConfig) {
+      if (this.signer && (<any>this.signer).setNetworks) {
+        const defaultChainId: number = (<any>this.signer).setNetworks(this.mainnetNetworks, this.testnetNetworks, chainId)
+        if (defaultChainId && notifyNetworks) {
+          await this.notifyNetworks()
+        }
+        return defaultChainId
       }
-      return defaultChainId
     } else {
-      return undefined
+      if (!chainIsSupported) {
+        throw new Error(`setDefaultNetwork error: chain ${chainId} is not supported`)
+      } else {
+        console.log(
+          `setDefaultNetwork error: network config issue. isTestnetEnabled: ${isTestnetEnabled}, isChainIdInTestnets: ${isChainIdInTestnets}`
+        )
+      }
     }
+
+    return undefined
   }
 
   async getNetworks(jsonRpcResponse?: boolean): Promise<NetworkConfig[]> {
@@ -805,7 +829,7 @@ export class WalletRequestHandler implements ExternalProvider, JsonRpcHandler, P
 }
 
 export interface WalletUserPrompter {
-  promptConnect(options?: ConnectOptions): Promise<PromptConnectDetails>
+  promptConnect(options?: ConnectOptions, requiresNetworkConfigChange?: boolean): Promise<PromptConnectDetails>
   promptSignMessage(message: MessageToSign, options?: ConnectOptions): Promise<string>
   promptSignTransaction(txn: TransactionRequest, chaindId?: number, options?: ConnectOptions): Promise<string>
   promptSendTransaction(txn: TransactionRequest, chaindId?: number, options?: ConnectOptions): Promise<string>
