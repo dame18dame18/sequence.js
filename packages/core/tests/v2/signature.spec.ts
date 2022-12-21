@@ -418,7 +418,7 @@ describe.only('v2 signature utils', () => {
 
       expect(decoded).to.deep.equal({
         version: 2,
-        type: SignatureType.NoChaindDynamic,
+        type: SignatureType.NoChainIdDynamic,
         decoded: {
           threshold: 1,
           checkpoint: 1667902589,
@@ -518,12 +518,12 @@ describe.only('v2 signature utils', () => {
     })
 
     it('Fail to decode invalid signature part type', () => {
-      const invalidSiganture = ethers.utils.solidityPack(
+      const invalidSignature = ethers.utils.solidityPack(
         ['bytes', 'uint8'],
         ['0x0001ffffffff', Object.keys(SignaturePartType).length / 2]
       )
 
-      expect(() => decodeSignature(invalidSiganture)).to.throw(`Unknown signature part type: ${Object.keys(SignaturePartType).length / 2}: 0x`)
+      expect(() => decodeSignature(invalidSignature)).to.throw(`Unknown signature part type: ${Object.keys(SignaturePartType).length / 2}: 0x`)
     })
 
     it('Fail to decode empty tree signature', () => {

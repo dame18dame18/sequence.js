@@ -8,7 +8,7 @@ import { hashSetImageHash } from "./chained"
 export enum SignatureType {
   Legacy = 0,
   Dynamic = 1,
-  NoChaindDynamic = 2,
+  NoChainIdDynamic = 2,
   Chained = 3
 }
 
@@ -325,7 +325,7 @@ export function encodeSigners(
     return {
       encoded: ethers.utils.solidityPack(
         ['uint8', 'uint16', 'uint32', 'bytes'],
-        [SignatureType.NoChaindDynamic, config.threshold, config.checkpoint, tree.encoded]
+        [SignatureType.NoChainIdDynamic, config.threshold, config.checkpoint, tree.encoded]
       ),
       weight: tree.weight
     }
@@ -487,15 +487,15 @@ export type Signature = base.Signature<WalletConfig> & {
 }
 
 export type UnrecoveredChainedSignature = UnrecoveredSignature & {
-  sufix: (UnrecoveredSignature | UnrecoveredChainedSignature)[]
+  suffix: (UnrecoveredSignature | UnrecoveredChainedSignature)[]
 }
 
 export type ChainedSignature = Signature & {
-  sufix: (Signature | ChainedSignature)[]
+  suffix: (Signature | ChainedSignature)[]
 }
 
 export function deepestConfigOfSignature(signature: Signature | ChainedSignature): WalletConfig {
-  return isChainedSignature(signature) ? deepestConfigOfSignature(signature.sufix[signature.sufix.length - 1]) : signature.config
+  return isChainedSignature(signature) ? deepestConfigOfSignature(signature.suffix[signature.suffix.length - 1]) : signature.config
 }
 
 export function isUnrecoveredSignature(sig: any): sig is UnrecoveredSignature {
@@ -508,7 +508,7 @@ export function isUnrecoveredSignature(sig: any): sig is UnrecoveredSignature {
 }
 
 export function isUnrecoveredChainedSignature(sig: any): sig is UnrecoveredChainedSignature {
-  return sig.sufix !== undefined && Array.isArray(sig.sufix) && sig.sufix.every(isUnrecoveredSignature)
+  return sig.suffix !== undefined && Array.isArray(sig.suffix) && sig.suffix.every(isUnrecoveredSignature)
 }
 
 export function isSignature(sig: any): sig is Signature {
@@ -536,8 +536,8 @@ export function decodeSignature(signature: ethers.BytesLike): UnrecoveredSignatu
     case SignatureType.Dynamic:
       return { version: 2, type: SignatureType.Dynamic, decoded: decodeSignatureBody(bytes.slice(1)) }
 
-    case SignatureType.NoChaindDynamic:
-      return { version: 2, type: SignatureType.NoChaindDynamic, decoded: decodeSignatureBody(bytes.slice(1)) }
+    case SignatureType.NoChainIdDynamic:
+      return { version: 2, type: SignatureType.NoChainIdDynamic, decoded: decodeSignatureBody(bytes.slice(1)) }
 
     case SignatureType.Chained:
       return decodeChainedSignature(bytes)
@@ -584,15 +584,15 @@ export function decodeChainedSignature(signature: ethers.BytesLike): Unrecovered
     throw new Error(`Expected first link of chained signature to be a simple signature (not chained)`)
   }
 
-  const sufix = chain.slice(1)
+  const suffix = chain.slice(1)
 
-  return { ...main, sufix }
+  return { ...main, suffix }
 }
 
-export function setImagehashStruct(imagehash: string) {
+export function setImageHashStruct(imageHash: string) {
   return ethers.utils.solidityPack(
     ['bytes32', 'bytes32'],
-    [ethers.utils.solidityKeccak256(['string'], ['SetImageHash(bytes32 imageHash)']), imagehash]
+    [ethers.utils.solidityKeccak256(['string'], ['SetImageHash(bytes32 imageHash)']), imageHash]
   )
 }
 
@@ -606,7 +606,7 @@ export async function recoverSignature(
 
   // if payload chainid is 0 then it must be encoded with "no chainid" encoding
   // and if it is encoded with "no chainid" encoding then it must have chainid 0
-  if (signedPayload && ethers.constants.Zero.eq(signedPayload.chainid) !== (signature.type === SignatureType.NoChaindDynamic)) {
+  if (signedPayload && ethers.constants.Zero.eq(signedPayload.chainid) !== (signature.type === SignatureType.NoChainIdDynamic)) {
     throw new Error(`Invalid signature type-chainid combination: ${signature.type}-${signedPayload.chainid.toString()}`)
   }
 
@@ -622,11 +622,11 @@ export async function recoverSignature(
   const result: (Signature | ChainedSignature)[] = []
   let mutatedPayload = signedPayload
 
-  for (const sig of [signature, ...signature.sufix]) {
+  for (const sig of [signature, ...signature.suffix]) {
     const recovered = await recoverSignature(sig, mutatedPayload, provider)
     result.unshift(recovered)
 
-    const nextMessage = setImagehashStruct(
+    const nextMessage = setImageHashStruct(
       imageHash(deepestConfigOfSignature(recovered))
     )
 
@@ -638,13 +638,13 @@ export async function recoverSignature(
   }
 
   const main = result[0]
-  const sufix = result.slice(1)
+  const suffix = result.slice(1)
 
-  return { ...main, sufix }
+  return { ...main, suffix }
 }
 
-export function encodeChain(main: ethers.BytesLike, sufix: ethers.BytesLike[]): string {
-  const allSignatures = [main, ...(sufix || [])]
+export function encodeChain(main: ethers.BytesLike, suffix: ethers.BytesLike[]): string {
+  const allSignatures = [main, ...(suffix || [])]
   const encodedMap = allSignatures.map((s) => ethers.utils.arrayify(encodeSignature(s)))
 
   const body = ethers.utils.solidityPack(
@@ -666,7 +666,7 @@ export function encodeSignature(
   if (isUnrecoveredChainedSignature(decoded) || isChainedSignature(decoded)) {
     return encodeChain(
       encodeSignature(decoded),
-      (decoded.sufix || []).map(encodeSignature)
+      (decoded.suffix || []).map(encodeSignature)
     )
   }
 
@@ -680,7 +680,7 @@ export function encodeSignature(
 
       return encodeSignatureBody(body)
 
-    case SignatureType.NoChaindDynamic:
+    case SignatureType.NoChainIdDynamic:
     case SignatureType.Dynamic:
       return ethers.utils.solidityPack(
         ['uint8', 'bytes'],
@@ -830,11 +830,11 @@ export const SignatureCoder: base.SignatureCoder<
 
   chainSignatures: (
     main: Signature | UnrecoveredSignature | UnrecoveredChainedSignature | ethers.BytesLike,
-    sufix: (Signature | UnrecoveredSignature | UnrecoveredChainedSignature | ethers.BytesLike)[]
+    suffix: (Signature | UnrecoveredSignature | UnrecoveredChainedSignature | ethers.BytesLike)[]
   ): string => {
     // Notice: v2 expects suffix to be reversed
     // that being: from signed to current imageHash
-    const reversed = sufix.reverse()
+    const reversed = suffix.reverse()
     const mraw = ethers.utils.isBytesLike(main) ? main : encodeSignature(main)
     const sraw = reversed.map(s => (ethers.utils.isBytesLike(s) ? s : encodeSignature(s)))
     return encodeChain(mraw, sraw)

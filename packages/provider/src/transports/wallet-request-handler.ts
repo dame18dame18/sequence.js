@@ -418,7 +418,7 @@ export class WalletRequestHandler implements ExternalProvider, JsonRpcHandler, P
             // this can only be broadcasted using an RPC provider with support for signed Sequence transactions, like this one.
             //
             // TODO: verify serializing / transporting the SignedTransaction object works as expected, most likely however
-            // we will want to resolveProperties the bignumber values to hex strings
+            // we will want to resolveProperties the big number values to hex strings
             response.result = await signer.signTransactions(transaction, chainId)
           } else {
             response.result = await this.prompter.promptSignTransaction(transaction, chainId, this.connectOptions)
@@ -808,8 +808,8 @@ export class WalletRequestHandler implements ExternalProvider, JsonRpcHandler, P
 export interface WalletUserPrompter {
   promptConnect(options?: ConnectOptions): Promise<PromptConnectDetails>
   promptSignMessage(message: MessageToSign, options?: ConnectOptions): Promise<string>
-  promptSignTransaction(txn: TransactionRequest, chaindId?: number, options?: ConnectOptions): Promise<string>
-  promptSendTransaction(txn: TransactionRequest, chaindId?: number, options?: ConnectOptions): Promise<string>
+  promptSignTransaction(txn: TransactionRequest, chainId?: number, options?: ConnectOptions): Promise<string>
+  promptSendTransaction(txn: TransactionRequest, chainId?: number, options?: ConnectOptions): Promise<string>
   promptConfirmWalletDeploy(chainId: number, options?: ConnectOptions): Promise<boolean>
 }
 
