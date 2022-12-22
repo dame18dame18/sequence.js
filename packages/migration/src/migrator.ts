@@ -44,8 +44,19 @@ export class Migrator {
   ) {}
 
   lastMigration(): Migration<commons.config.Config, commons.config.Config> {
-    const versions = Object.values(this.migrations)
-    return versions[versions.length - 1]
+    let last: Migration<commons.config.Config, commons.config.Config> | undefined
+
+    for (const migration of Object.values(this.migrations)) {
+      if (last === undefined || migration.version > last.version) {
+        last = migration
+      }
+    }
+
+    if (last !== undefined) {
+      return last
+    } else {
+      throw new Error('no migrations')
+    }
   }
 
   async getAllMigratePresignedTransaction(args: {
