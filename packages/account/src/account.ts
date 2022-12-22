@@ -269,9 +269,6 @@ export class Account {
   // 3. Get any pending configuration updates that have been signed by the wallet
   // 4. Fetch reverse lookups for both on-chain and pending configurations
   async status(chainId: ethers.BigNumberish): Promise<AccountStatus> {
-    const isDeployedPromise = this.reader(chainId).isDeployed()
-    const onChainVersionInfoPromise = this.onchainVersionInfo(chainId)
-
     let onChainImageHash = await this.reader(chainId).imageHash()
     if (!onChainImageHash) {
       const counterFactualImageHash = await this.tracker.imageHashOfCounterFactualWallet({
@@ -290,7 +287,7 @@ export class Account {
       throw new Error(`On-chain config not found for imageHash ${onChainImageHash}`)
     }
 
-    const { current: onChainVersion, first: onChainFirstInfo } = await onChainVersionInfoPromise
+    const { current: onChainVersion, first: onChainFirstInfo } = await this.onchainVersionInfo(chainId)
 
     let fromImageHash = onChainImageHash
     let version = onChainVersion
@@ -326,7 +323,7 @@ export class Account {
       throw new Error(`Config not found for imageHash ${imageHash}`)
     }
 
-    const isDeployed = await isDeployedPromise
+    const isDeployed = await this.reader(chainId).isDeployed()
     const checkpoint = universal.coderFor(version).config.checkpointOf(config as any)
 
     return {
